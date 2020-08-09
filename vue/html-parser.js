@@ -112,8 +112,53 @@ function parseHTML(html, options) {
 }
 
 
+
+function createASTElement(tag, attrs, parent) {
+  return {
+    type: 1,
+    tag,
+    attrsList: attrs,
+    children: []
+  }
+}
+
+function parseText(text) {
+  const tagRE = /\{\{((?:.|\n)+?)\}\}/g
+  if (!tagRE.test(text)) {
+    return
+  }
+
+  const tokens = []
+  let lastIndex = tagRE.lastIndex = 0
+  let match, index
+  //判断是否符合模板语法
+  while ((match = tagRE.exec(text))) {
+    index = match.index
+    console.log(match)
+    // 先把 {{ 前边的文本添加到tokens中
+    if (index > lastIndex) {
+      //截取符合条件的代码前面的代码
+      tokens.push(JSON.stringify(text.slice(lastIndex, index)))
+    }
+    // 把变量改成`_s(x)`这样的形式也添加到数组中
+    tokens.push(`_s(${match[1].trim()})`)
+
+    // 设置lastIndex来保证下一轮循环时，正则表达式不再重复匹配已经解析过的文本
+    lastIndex = index + match[0].length
+  }
+
+  // 当所有变量都处理完毕后，如果最后一个变量右边还有文本，就将文本添加到数组中
+  if (lastIndex < text.length) {
+    tokens.push(JSON.stringify(text.slice(lastIndex)))
+  }
+  return tokens.join('+')
+}
+
+
+
 parseHTML(
   `<div id="app">
+          <div  class="box" id="el">hello {{baby}}</div>
           <div  class="box" id="el">123</div>
         </div>`
   , {
@@ -134,27 +179,33 @@ parseHTML(
       // 每当解析到标签的结束位置时，触发该函数
       const lastEle = astStack.pop()
       if (!astStack.length) {
-        console.dir(lastEle)
+        console.log(JSON.stringify(lastEle))
       }
     },
     chars(text) {
-      // 每当解析到文本时，触发该函数
-      // 每当解析到标签的开始位置时，触发该函数
-      const element = {type: 3, text}
-      //如果当前有父元素，则往父元素中插入，如果没有，则当前元素改为父元素
-      if (astStack && astStack.length) {
-        const currentParent = astStack[astStack.length - 1]
-        currentParent.children.push(element)
+      text = text.trim()
+      if (text) {
+        // 每当解析到文本时，触发该函数
+        // 每当解析到标签的开始位置时，触发该函数
+        let element
+        let expression
+        if (expression = parseText(text)) {
+          element = {
+            type: 2,
+            expression,
+            text
+          }
+        } else {
+          element = {
+            type: 3,
+            text
+          }
+        }
+        //如果当前有父元素，则往父元素中插入，如果没有，则当前元素改为父元素
+        if (astStack && astStack.length) {
+          const currentParent = astStack[astStack.length - 1]
+          currentParent.children.push(element)
+        }
       }
     }
   })
-
-function createASTElement(tag, attrs, parent) {
-  return {
-    type: 1,
-    tag,
-    attrsList: attrs,
-    parent,
-    children: []
-  }
-}
