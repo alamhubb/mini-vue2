@@ -8,8 +8,27 @@
 </head>
 <body>
 <div id="app">
-  hello
+  <h1>差值表达式</h1>
+  <h3>{{ msg }}</h3>
+  <h3>{{ count }}</h3>
+  <h1>v-text</h1>
+  <div v-text="msg"></div>
+  <h1>v-model</h1>
+  <input type="text" v-model="msg">
+  <input type="text" v-model="count">
 </div>
-<script src="./vue/html-parser.js"></script>
+
+<script type="module">
+  import QVue from "./vue/QVue.js";
+
+  let vm = new QVue({
+    el: '#app',
+    data: {
+      msg: 'Hello Vue',
+      count: 20,
+      items: ['a', 'b', 'c']
+    }
+  })
+</script>
 </body>
 </html>
