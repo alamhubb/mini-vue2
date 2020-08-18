@@ -13,4 +13,10 @@ export default class Dep {
       sub.update()
     })
   }
+
+  depend () {
+    if (Dep.target) {
+      this.addSub(Dep.target)
+    }
+  }
 }

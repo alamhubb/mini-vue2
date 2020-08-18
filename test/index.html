@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>简版vue2.0</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <style>
+      .red {
+          background: red;
+      }
+
+      .green {
+          background: green;
+      }
+
+      .yellow {
+          background: yellow;
+      }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div style="width: 200px;height: 200px" :class="color">
+
+  </div>
+</div>
+
+<script src="test4.js"></script>
+<script type="module">
+  import ColorLight from './test2.js'
+
+  const colorLight = new ColorLight()
+
+  const app = new Vue({
+    el: '#app',
+    data: {
+      color: ''
+    }
+  })
+
+  async function exc() {
+    while (true) {
+      app.color = colorLight.colors[colorLight.index].color
+      await colorLight.excLight(colorLight.colors[colorLight.index].time)
+      if (colorLight.index < colorLight.colors.length - 1) {
+        colorLight.index++
+      } else {
+        colorLight.index = 0
+      }
+    }
+  }
+
+  exc()
+
+
+</script>
+
+</body>
+</html>

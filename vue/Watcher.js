@@ -19,8 +19,10 @@ export default class Watcher {
 
   update() {
     let newValue = this.vm[this.key]
-    if (this.oldValue === newValue) {
-      return
+    if (!Array.isArray(newValue)) {
+      if (this.oldValue === newValue) {
+        return
+      }
     }
     this.callBack(newValue)
   }
